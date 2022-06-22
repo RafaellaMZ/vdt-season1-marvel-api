@@ -1,5 +1,3 @@
-
-
 describe('POST /characters', function(){
 
     before(function(){ 
@@ -52,66 +50,54 @@ describe('POST /characters', function(){
         })
     })
 
-    context('validação de campos obrigatórios', function(){
+    context('Validação dos campos obrigatórios', function(){
 
-        it('validação do campo obrigatório nome', function(){
+        const massaTestes = [
+            {
+                payload: {
+                    name: '',
+                    alias: 'Hulk',
+                    team: ['Vingadores'],
+                    active: true
+                },
+                expect_message: '\"name\" is not allowed to be empty'            
+            },
+            {
+                payload: {                    
+                        name: 'Tony Stark',
+                        alias: '',
+                        team: ['Vingadores'],
+                        active: true                    
+                },
+                expect_message: '\"alias\" is not allowed to be empty'
+            },
+            {
+                payload: {
+                    name: 'Tony Stark',
+                    alias: 'Homem de Ferro',
+                    team: [''],
+                    active: true
+                },
+                expect_message: '\"team[0]\" is not allowed to be empty'
+            },
+            {
+                payload: {
+                    "name": "Tony Stark",
+                    "alias": "Homem de Ferro",
+                    "team": ["Vingadores"]
+                    
+                },
+                expect_message: '\"active\" is required'
+            },
+        ]
 
-            const character = {
-                name: '',
-                alias: 'Hulk',
-                team: ['Vingadores'],
-                active: true
-            }
-
-            cy.postCharacter(character).then(function(response){
-                expect(response.status).to.eql(400)
-                expect(response.body.validation.body.message).to.eql('\"name\" is not allowed to be empty')
-            }) 
-        })
-
-        it('validação do campo obrigatório alias', function(){
-
-            const character = {
-                name: 'Tony Stark',
-                alias: '',
-                team: ['Vingadores'],
-                active: true
-            }
-
-            cy.postCharacter(character).then(function(response){
-                expect(response.status).to.eql(400)
-                expect(response.body.validation.body.message).to.eql('\"alias\" is not allowed to be empty')
-            })
-
-        })
-
-        it('validação do campo obrigatório team', function(){
-
-            const character = {
-                name: 'Tony Stark',
-                alias: 'Homem de Ferro',
-                team: [''],
-                active: true
-            }
-
-            cy.postCharacter(character).then(function(response){
-                expect(response.status).to.eql(400)
-                expect(response.body.validation.body.message).to.eql('\"team[0]\" is not allowed to be empty')
-            })
-        })
-
-        it('validação do campo obrigatório active', function(){
-
-            const character = {
-                "name": "Tony Stark",
-                "alias": "Homem de Ferro",
-                "team": ["Vingadores"]
-                
-            }
-
-            cy.postCharacter(character).then(function(response){
-                expect(response.status).to.eql(400)
-                expect(response.body.validation.body.message).to.eql('\"active\" is required')
+        massaTestes.forEach((data) => {
+            it('validando cada campo obrigatório', function(){
+                cy.postCharacter(data.payload)
+                .then(function(response){
+                    expect(response.status).to.eql(400)
+                    expect(response.body.validation.body.message).to.eql(data.expect_message)
+                })
             })
         })
     })
